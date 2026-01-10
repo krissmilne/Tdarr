@@ -14,6 +14,8 @@ ENV NODE_LINK=""
 ENV BASE_LINK="https://storage.tdarr.io/versions/$VERSION"
 ENV inContainer="true"
 
+# Reference available versions here: https://storage.tdarr.io/versions.json
+
 COPY docker/root/ /
 RUN chmod +x /etc/services.d/tdarr_server/run && \
     chmod +x /etc/services.d/tdarr_node/run && \

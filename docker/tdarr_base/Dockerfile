@@ -6,7 +6,7 @@ ENV \
     NVIDIA_DRIVER_CAPABILITIES="compute,video,utility" \
     NVIDIA_VISIBLE_DEVICES="all" \
     HANDBRAKE="1.10.2" \
-    FFMPEGVERSION="7.1.2-1"
+    FFMPEGVERSION="7.1.3-1"
 
 ENV WEB_UI_PORT="8265" SERVER_PORT="8266" NODE_PORT="8267" PUID="1000" PGID="1000" UMASK="002" TZ="Etc/UTC" HOME="/home/Tdarr"
 # ========================================================================================
@@ -88,6 +88,7 @@ RUN apt-get update &&  \
     intel-gsc \
     # Install Intel media related packages
     intel-media-va-driver-non-free \
+    libmfx1 \
     libmfx-gen1 \
     libvpl2 \
     libvpl-tools \
@@ -156,7 +157,8 @@ RUN apt-get update &&  \
     clang \
     # QSV dependencies
     libva-dev \
-    libdrm-dev && \
+    libdrm-dev \
+    libvpl-dev && \
     # Install Rust (required for libdovi)
     curl https://sh.rustup.rs -sSf | sh -s -- -y --profile minimal --default-toolchain stable && \
     . "${HOME}/.cargo/env" && \
@@ -241,7 +243,8 @@ RUN apt-get update &&  \
     zlib1g-dev \
     libssl-dev \
     libva-dev \
-    libdrm-dev && \
+    libdrm-dev \
+    libvpl-dev && \
     # remove rust toolchain installed via rustup (cargo, rustup)
     rm -rdf "$HOME/.cargo" "$HOME/.rustup" ; \
     fi && \
