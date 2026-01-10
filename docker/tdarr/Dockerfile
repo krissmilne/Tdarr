@@ -19,8 +19,11 @@ ENV inContainer="true"
 COPY docker/root/ /
 RUN chmod +x /etc/services.d/tdarr_server/run && \
     chmod +x /etc/services.d/tdarr_node/run && \
+    chmod +x /etc/services.d/update_monitor/run && \
     chmod +x /etc/cont-init.d/01-setup-perms && \
     chmod +x /etc/cont-init.d/02-hw-transcoding
+
+RUN apt-get update && apt-get install -y psmisc
 
 # handle tdarr binaries
 RUN echo $MODULE && echo $VERSION echo $DATE && \
@@ -43,21 +46,11 @@ RUN echo $MODULE && echo $VERSION echo $DATE && \
     curl --connect-timeout 120 --retry 5 -o /tmp/${MODULE}.zip -L \
     "$MODULE_LINK"  && \
     unzip -q /tmp/${MODULE}.zip -d /app/${MODULE} -x *.exe && \
-    rm -rdf /app/${MODULE}/${MODULE} && \
-    rm -rdf /app/${MODULE}/${MODULE}_Tray && \
-    rm -rdf /app/${MODULE}/runtime && \
-    #Replace ccextractor embedded in Tdarr with our custom build
-    cp /usr/bin/ccextractor /app/${MODULE}/assets/app/ccextractor/linux_x64/ccextractor && \
     # Node
     if [ "$MODULE" = "Tdarr_Server" ]; then \
     curl --connect-timeout 120 --retry 5 -o /tmp/Tdarr_Node.zip -L \
     "$NODE_LINK" && \
-    unzip -q /tmp/Tdarr_Node.zip -d /app/Tdarr_Node -x *.exe && \
-    rm -rdf /app/Tdarr_Node/Tdarr_Node && \
-    rm -rdf /app/Tdarr_Node/Tdarr_Node_Tray && \
-    rm -rdf /app/Tdarr_Node/runtime && \
-    #Replace ccextractor embedded in Tdarr with our custom build
-    cp /usr/bin/ccextractor /app/Tdarr_Node/assets/app/ccextractor/linux_x64/ccextractor ; \
+    unzip -q /tmp/Tdarr_Node.zip -d /app/Tdarr_Node -x *.exe ; \
     fi && \
     rm -rdf /tmp/${MODULE}.zip && \
     rm -rdf /tmp/Tdarr_Node.zip && \
@@ -68,9 +61,9 @@ RUN echo $MODULE && echo $VERSION echo $DATE && \
     chown -R abc:abc /app && \
     cp -r /app /app_test && \
     # test
-    runTests=true runDockerTests=false node /app_test/$MODULE/srcug/main.js && \
+    runTests=true runDockerTests=true BUILD_DATE=$DATE node /app_test/$MODULE/srcug/main.js && \
     if [ "$MODULE" = "Tdarr_Server" ]; then \
-    runTests=true runDockerTests=false node /app_test/Tdarr_Node/srcug/main.js ; \
+    runTests=true runDockerTests=true BUILD_DATE=$DATE node /app_test/Tdarr_Node/srcug/main.js ; \
     fi && \
     rm -rdf /app_test
 
